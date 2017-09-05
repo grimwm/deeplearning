@@ -1,5 +1,7 @@
 \documentclass{article}
 \usepackage{hyperref}
+\usepackage{float}
+\usepackage{amsmath}
 
 \begin{document}
 
@@ -7,5 +9,72 @@
 \author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
 
 \maketitle
+
+\begin{abstract}
+When you build NN, you will find that in many cases, you end up either with underfitting, known as bias, or overfitting, known as variance.  Regularization aids you in removing variance at the expense of potentially adding bias if you add too much regularization to the cost function, $J$.
+\end{abstract}
+
+\section{Regularization}
+
+The most often used regularization is what is known as $L_{2}$ regularization, but the more formal name for it is the scaled square of the "Frobenius Normal" or analogously, the "Euclidean Normal".  Although, in practice, the "Euclidean Normal" is a bit of a misnomer when dealing with matrices, but you will quickly see the similarities between the "Frobenius Normal" and Euclidean distance normalization for a vector.
+
+\subsection{L2 Regularization}
+
+Without further adieu, refer to Equation \ref{eqn:frobenius}.
+
+\begin{gather} \label{eqn:frobenius}
+||W||_{F} = \sqrt(\sum_{i=1}^{n^{l}} \sum_{j=1}^{n^{l-1}} W_{ij}^{2})
+\end{gather}
+
+Where
+\begin{itemize}
+\item $n^{l}$ = number of features in layer l
+\item $n^{l-1}$ = number of features in layer l-1.
+\end{itemize}
+
+You can see the Frobenius Normal's relationship to the Euclidean distance formula: $d = \sqrt(x^{2} + y^{2})$, hence why it is analagous, but not quite the same.  Thus, "Euclidean Normal" is a reasonable misnomer.
+
+Finally, the $L_{2}$ regularization is just
+
+\begin{gather}
+L_{2} = \frac{\lambda}{2m} \sum_{l=1}^{L} ||W||_{F}^{2}
+\end{gather}
+
+Where $\frac{\lambda}{2m}$ is just a scaling constant and can be virtually anything, but having $2$ in the denominator makes the derivative a bit nicer.  Speaking of which:
+
+\begin{gather}
+\frac{d[L_{2}]}{dW} = \frac{\lambda}{m} \sum_{l=1}^{L} W
+\end{gather}
+
+\subsection{L1 Regularization}
+
+$L_{1}$ is a less-used regularization, with the idea being that $W$ could be made more sparse (e.g. with more 0s).  You will have to experiment with whether or not this style of regularization would work for you.  Its formula is seen in Equation \ref{eqn:l1}
+
+\begin{gather} \label{eqn:l1}
+L_{1} = \frac{\lambda}{2m} ||W||_{F} \\
+\frac{d[L_{1}]}{dW} = \frac{\lambda}{2m}
+\end{gather}
+
+\subsection{Cost Function, J}
+
+Using the newly learned $L_2$ regularization, let's see how it would apply to the cost function, $J$.
+
+\begin{gather}
+J(W, b) = \frac{1}{m} \sum(\hat{y}, y) + \frac{\lambda}{2m} ||W||_{F}^{2}
+\end{gather}
+
+\subsection{Back Propagation}
+
+Again, using $L_2$ regularization, let's see how it applies to back propagation values $dW$ and $db$.
+
+\begin{gather}
+dW^{[l]} = D + \frac{\lambda}{m} W^{[l]} \\
+W = W - \alpha dW = W - \alpha (D + \frac{\alpha \lambda}{m} W^{[l]} \\
+= W(1 - \frac{\lambda}{m}) - \alpha D
+\end{gather}
+
+Where $D$ is the value computed from normal back propagation without regularization.  Hence, regularization is added to the derivative AFTER the derivative is calculated in back propagation.  It almost would seem better just to call it $dW$, but I want to stress the point that $D$ is calculated first and separately.
+
+Due to the term $W - \frac{\alpha\lambda}{m} W$, $L_2$ regularization is also known as \textbf{weight decay}, because we end up multiplying $W$ by $(1 - \frac{\alpha\lambda}{m})$, which ends up multiplying $W$ by a value just a bit under $1$.  Therefore, $L_2$ is decaying $W$.
 
 \end{document}

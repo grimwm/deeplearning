@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {1}Logistic Regression}{1}{section.1}
+\contentsline {subsection}{\numberline {1.1}Variables and Definitions}{1}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Equation Cheat Sheet}{2}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Cost Analysis Function}{2}{subsection.1.3}
+\contentsline {subsubsection}{\numberline {1.3.1}Intuition}{2}{subsubsection.1.3.1}
+\contentsline {subsubsection}{\numberline {1.3.2}Error/Cost/Loss Function}{3}{subsubsection.1.3.2}
+\contentsline {subsubsection}{\numberline {1.3.3}Minimize Our Cost}{3}{subsubsection.1.3.3}
+\contentsline {subsubsection}{\numberline {1.3.4}Gradient Descent}{3}{subsubsection.1.3.4}
+\contentsline {paragraph}{Numerical Gradient Descent Explained Graphically}{3}{section*.2}
+\contentsline {paragraph}{Partial Derivative ${\begingroup \partial {J}\endgroup \over \partial {w}}$}{4}{section*.3}
+\contentsline {subparagraph}{Conclusions}{5}{section*.4}
+\contentsline {subparagraph}{Partial Derivations}{5}{section*.5}
+\contentsline {subparagraph}{Substitutions}{5}{section*.6}
