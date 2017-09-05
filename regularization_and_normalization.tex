@@ -77,4 +77,25 @@ Where $D$ is the value computed from normal back propagation without regularizat
 
 Due to the term $W - \frac{\alpha\lambda}{m} W$, $L_2$ regularization is also known as \textbf{weight decay}, because we end up multiplying $W$ by $(1 - \frac{\alpha\lambda}{m})$, which ends up multiplying $W$ by a value just a bit under $1$.  Therefore, $L_2$ is decaying $W$.
 
+\section{Normalization}
+
+We often want to normaliza so that our features become more distance, allowing the cost function, $J$, to look more symmetric, allowing us to use a more lenient learning rate, $\alpha$.  With an unnormalized $J$, we often have a "squished" function where $\alpha$ must be chosen correctly and often results in slower learning.
+
+Subtract the mean:
+
+\begin{gather}
+\mu = \frac{1}{m} \sum_{i=1}^{m} x^{(i)} \\
+x := x - \mu
+\end{gather}
+
+
+Normalize variance:
+
+\begin{gather}
+\sigma^2 = \frac{1}{m} \sum_{i=1}^{m} (x^{(i)})^2 \\
+x /= \sigma^2
+\end{gather}
+
+NOTE: Use the same $\mu$ and $\sigma^2$ on your test set as you did on your training set so that you can compare apples to apples.
+
 \end{document}
