@@ -181,5 +181,15 @@ Therefore, additionally solving for $\frac{\partial{J}}{\partial{b}}$, we end up
 \frac{\partial{J}}{\partial{b}} = a-y
 \end{gather}
 
+Expanding the two above equations to vectors and matrices, we arrive at the final versions of the derivations that we will be using:
+
+\begin{gather}
+\frac{\partial{J}}{\partial{w}} = \frac{1}{m} X(A-Y)^{T} \\
+%
+\frac{\partial{J}}{\partial{b}} = \frac{1}{m} \sum_{i=1}^{m} (a^{(i)} - y^{(i)})
+\end{gather}
+
+In case it's not obvious why we do a summation in one of the forumlas and not the other, it is because the matrix multiplication already implies summations when it sums the dot products together.  For the other formula, however, we are not performing matrix multiplication and must therefore do the summation ourselves.
+
 \end{document}
 
