@@ -3,6 +3,7 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
 
 \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}}
 \newcommand{\mysubparagraph}[1]{\subparagraph{#1}\mbox{}}
@@ -60,8 +61,10 @@ $$\frac{\partial{J}}{\partial{b}} = \frac{1}{m} \sum_{i=1}^{m}(a^{(i)} - y^{(i)}
 
 In general, we want a formula meeting these requirements:
 
-$$p(y=1|x) = a$$
-$$p(y=0|x) = 1 - a$$
+\begin{gather}
+p(y=1|x) = a \\
+p(y=0|x) = 1 - a
+\end{gather}
 
 As seen below, the following formula meets these requirements for $p(y | x)$:
 
@@ -69,16 +72,21 @@ Given:
 $$p(y|x) = a^{y}(1-a)^{1-y}$$
 
 Substituting $y=1$ or $y=0$, respectively:
-$$p(y=1|x) = a^{1}(1-a)^{1-1} = a$$
-$$p(y=0|x) = a^{0}(1-a)^{1-0} = 1-a$$
+
+\begin{gather}
+p(y=1|x) = a^{1}(1-a)^{1-1} = a \\
+p(y=0|x) = a^{0}(1-a)^{1-0} = 1-a
+\end{gather}
 
 \subsubsection{Error/Cost/Loss Function}
 
 Applying the $log$ function to both sides of $p(y | x)$, we have
 
-$$L(a,y) = log(p(y|x)) = log(a^{y}(1-a)^{1-y})$$
-$$= log(a)^y + log (1-a)^{1-y}$$
-$$= y\ log(a) + (1-y) log (1-a)$$
+\begin{gather}
+L(a,y) = log(p(y|x)) = log(a^{y}(1-a)^{1-y}) \\
+= log(a)^y + log (1-a)^{1-y} \\
+= y\ log(a) + (1-y) log (1-a)
+\end{gather}
 
 $L(a,y)$ is the amount of error between our predictions and the true values.  This is the case because $a$ comes from our predicted weights ($w$) multiplied by our input data ($X$) and passed to our activation function.  If we had no error, this loss function would be 0, meaning that if we predicted $w$ properly, then $y = a$ would be true.
 
@@ -122,25 +130,56 @@ Iteratively performing the above formula many times, updating our derivative eac
 First, we will introduce the final formulas, and then we will break down the math into steps.
 
 \mysubparagraph{Conclusions}
-$$\frac{\partial{J}}{\partial{w}} = \frac{1}{m}X(A-Y)^{T}$$
 
-$$\frac{\partial{J}}{\partial{b}} = \frac{1}{m} \sum_{i=1}^{m}(a^{(i)} - y^{(i)})$$
+\begin{gather}
+\frac{\partial{J}}{\partial{w}} = \frac{1}{m}X(A-Y)^{T} \\
+%
+\frac{\partial{J}}{\partial{b}} = \frac{1}{m} \sum_{i=1}^{m}(a^{(i)} - y^{(i)})
+\end{gather}
 
 \mysubparagraph{Partial Derivations}
-$$\frac{\partial{J}}{\partial{w}} = \frac{\partial{J}}{\partial{L}}\frac{\partial{L}}{\partial{a}}\frac{\partial{a}}{\partial{z}}\frac{\partial{z}}{\partial{w}}$$
 
-$$\frac{\partial{z}}{\partial{w}} = \frac{\partial{[w^TX + b]}}{\partial{w}} = X$$
-
-$$\frac{\partial{z}}{\partial{b}} = \frac{\partial{[w^{T} X + b]}}{\partial{b}} = 1$$
-
-$$\frac{\partial{a}}{\partial{z}} = \frac{\partial{[\frac{1}{1 + e^{-z}}}]}{\partial{z}} = \frac{e^{-z}}{(1+e^{-z})^{2}}$$
-
-$$\frac{\partial{L}}{\partial{a}} = \frac{\partial{[y\ log(a) + (1-y) log (1-a)]}}{\partial{a}}$$
-$$= \frac{y}{a} - \frac{1-y}{1-a} = \frac{y-ya-a+ya}{a(1-a)} = \frac{a-y}{a(a-1)}$$
+\begin{gather}
+\frac{\partial{J}}{\partial{w}} = \frac{\partial{J}}{\partial{L}}\frac{\partial{L}}{\partial{a}}\frac{\partial{a}}{\partial{z}}\frac{\partial{z}}{\partial{w}} \label{eqn:dJ_dw} \\
+%
+\frac{\partial{J}}{\partial{b}} = \frac{\partial{J}}{\partial{L}}\frac{\partial{L}}{\partial{a}}\frac{\partial{a}}{\partial{z}}\frac{\partial{z}}{\partial{b}} \label{eqn:dJ_db} \\
+%
+\frac{\partial{J}}{\partial{L}} = 1 \\
+%
+\frac{\partial{z}}{\partial{w}} = \frac{\partial{[w^TX + b]}}{\partial{w}} = X \\
+%
+\frac{\partial{z}}{\partial{b}} = \frac{\partial{[w^{T} X + b]}}{\partial{b}} = 1 \\
+%
+\frac{\partial{a}}{\partial{z}} = \frac{\partial{[\frac{1}{1 + e^{-z}}}]}{\partial{z}} = \frac{-e^{-z}}{(1+e^{-z})^{2}} \\
+%
+\frac{\partial{L}}{\partial{a}} = \frac{\partial{[y\ log(a) + (1-y) log (1-a)]}}{\partial{a}} \\
+= \frac{y}{a} - \frac{1-y}{1-a} = \frac{y-ya-a+ya}{a(1-a)} \\
+= \frac{a-y}{a(a-1)}
+\end{gather}
 
 \mysubparagraph{Substitutions}
 
-TODO
+Beginning with Equation \ref{eqn:dJ_dw}, we will now substitute all variables into place and simplify.
+
+\begin{gather}
+\frac{\partial{J}}{\partial{w}} = 1 * \frac{a-y}{a(a-1)} * \frac{e^{-z}}{(1+e^{-z})^{2}} * x \\
+%
+a = \sigma(z) = \frac{1}{1 + e^{-z}} \\
+%
+\frac{a-y}{a(a-1)} = \frac{\frac{1}{1 + e^{-z}} - y}{\frac{1}{1 + e^{-z}} \frac{-e^{-z}}{1 + e^{-z}}} = \frac{(1+e^{-z})^2 (\frac{1}{1 + e^{-z}} - y)}{-e^{-z}} \\
+%
+\frac{a-y}{a(a-1)} * \frac{-e^{-z}}{(1+e^{-z})^{2}} = a-y \\
+%
+\frac{\partial{J}}{\partial{w}} = x(a-y)
+\end{gather}
+
+Therefore, additionally solving for $\frac{\partial{J}}{\partial{b}}$, we end up with these two very important derivatives.
+
+\begin{gather}
+\frac{\partial{J}}{\partial{w}} = x(a-y) \\
+%
+\frac{\partial{J}}{\partial{b}} = a-y
+\end{gather}
 
 \end{document}
 
