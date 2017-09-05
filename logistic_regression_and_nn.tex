@@ -146,9 +146,9 @@ First, we will introduce the final formulas, and then we will break down the mat
 %
 \frac{\partial{J}}{\partial{L}} = 1 \\
 %
-\frac{\partial{z}}{\partial{w}} = \frac{\partial{[w^TX + b]}}{\partial{w}} = X \\
+\frac{\partial{z}}{\partial{w}} = \frac{\partial{[w^T x + b]}}{\partial{w}} = x \\
 %
-\frac{\partial{z}}{\partial{b}} = \frac{\partial{[w^{T} X + b]}}{\partial{b}} = 1 \\
+\frac{\partial{z}}{\partial{b}} = \frac{\partial{[w^{T} x + b]}}{\partial{b}} = 1 \\
 %
 \frac{\partial{a}}{\partial{z}} = \frac{\partial{[\frac{1}{1 + e^{-z}}}]}{\partial{z}} = \frac{-e^{-z}}{(1+e^{-z})^{2}} \\
 %
@@ -181,7 +181,7 @@ Therefore, additionally solving for $\frac{\partial{J}}{\partial{b}}$, we end up
 \frac{\partial{J}}{\partial{b}} = a-y
 \end{gather}
 
-Expanding the two above equations to vectors and matrices, we arrive at the final versions of the derivations that we will be using:
+Expanding the two above equations to vectors and matrices with $m$ samples, we arrive at the final versions of the derivations that we will be using:
 
 \begin{gather}
 \frac{\partial{J}}{\partial{w}} = \frac{1}{m} X(A-Y)^{T} \\
