@@ -98,4 +98,37 @@ x /= \sigma^2
 
 NOTE: Use the same $\mu$ and $\sigma^2$ on your test set as you did on your training set so that you can compare apples to apples.
 
+\section{Vanishing and Exploding Gradients}
+
+A \textbf{vanishing gradient} is one that a gradient becomes so shallow that it becomes difficult to find the optimal cost because we move along the curve $J$ very slowly.  An \textbf{exploding gradient} is one that becomes so steep that it becomes difficult to find the optimal cost because we move along the curve $J$ too quickly.
+
+Assume a very deep L-layer network with just two nodes per hidden unit.  For the sake of argument, also assume we are using the linear activation function, $g(W, A) = W A$.  We end up in this situation for $\hat{y}$ as seen in Equation \ref{eqn:weight_exponentiation}:
+
+\begin{gather}
+\hat{y} = g(W^{[L]}, g(W^{[L-1]}, ..., g(W^{[2]}, g(W^{[1]}, X))...)) \\
+\hat{y} = W^{[L]} W^{[l-1]} ... W^{[3]} W^{[2]} W^{[1]} X \label{eqn:weight_exponentiation}
+\end{gather}
+
+On its own, this is not a problem, but imagine two scenarios where all of $W^{[1]}, ..., W^{[L]}$ were one of the following $W_1$ or $W_2$:
+
+\begin{gather}
+W_1 = \begin{bmatrix}
+1.5 & 0.0 \\
+0.0 & 1.5
+\end{bmatrix} \\
+%
+W_2 = \begin{bmatrix}
+0.5 & 0.0 \\
+0.0 & 0.5
+\end{bmatrix}
+\end{gather}
+
+\paragraph{Scenario 1}
+
+As we multiply $W_1$ by itself multiple times, we will find that we end up with the $1.5$ values becoming $1.5 * 1.5 * ... = 1.5^L$, which results in an exploding gradient.
+
+\paragraph{Scenario 2}
+
+As we multiply $W_2$ by itself multiple times, we will find that we end up with the $0.5$ values becoming $0.5 * 0.5 * ... = 0.5^L$, which results in a vanishing gradient.
+
 \end{document}
