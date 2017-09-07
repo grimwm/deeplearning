@@ -6,7 +6,7 @@
 
 \begin{document}
 
-\title {Regularization of NN}
+\title {Bias and Variance: Regularization and Normalization}
 \author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
 
 \maketitle
@@ -14,6 +14,31 @@
 \begin{abstract}
 When you build NN, you will find that in many cases, you end up either with underfitting, known as bias, or overfitting, known as variance.  Regularization aids you in removing variance at the expense of potentially adding bias if you add too much regularization to the cost function, $J$.
 \end{abstract}
+
+\section{Training, Development, and Test Sets}
+
+Historically, given data, we might split data sets of 100, 1,000, or 10,000 data points:
+
+\begin{itemize}
+\item 70\% training; 30\% test
+\item 60\% training; 20\% dev / cross-validation; 20\% test
+\end{itemize}
+
+However, in the "Big Data" era, where you could end up with millions of data points, let's look at an example.  If you have 1,000,000 total data points, you might find you only need 10,000 cross-validation points and 10,000 test points, giving you a ratio of train/dev/test to be 98\%/1\%/1\%.
+
+THe main point being that you can have very large training set ratios when compared to your dev and test sets.
+
+\subsection{Data Point Distribution}
+
+To split the data points out to training, dev, and test sets, then they should all come from the same data distribution.  In other words, if the model is learning only clearly defined cat photos but users will be using the model to look at blurry photos, then the training data must include blurry photos as well.
+
+\subsection{No Dev Set}
+
+Oftentimes, it is okay not to have a dev set, using the test set as the dev set.  In this setup, the nomenclature for the "dev set" is often "test set", even though it may not be very precise naming.
+
+\section{Bias and Variance}
+
+
 
 \section{Regularization}
 
