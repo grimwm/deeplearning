@@ -112,11 +112,11 @@ First, let's start with a view of a function $f(z)$ and its derivative, which is
 
 Our goal is to modify the input variable $z$ to minimize $f(z)$, and we can do this by minimizing $t(z)$, implying that we can minimize $f(z)$ by minimizing $z$.
 
-Symbolically, the above is very simple using the standard rules of calculus.  However, when dealing with complex functions, we are forced to do iterative gradient descent numerically.  So, our approach will be as seen in Algorithm \ref{fig:z_update_rule}.
+Symbolically, the above is very simple using the standard rules of calculus.  However, when dealing with complex functions, we are forced to do iterative gradient descent numerically.  So, our approach will be as seen in Algorithm \ref{alg:z_update_rule}.
 
 \begin{algorithm}[h]
 \caption{Z Update Rule}
-\label{fig:z_update_rule}
+\label{alg:z_update_rule}
 \For{i:=1 to N}{
 z := z - $\alpha$ dz\;
 dz := expected - f(z)\;

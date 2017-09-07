@@ -2,6 +2,7 @@
 \usepackage{hyperref}
 \usepackage{float}
 \usepackage{amsmath}
+\usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
 
 \begin{document}
 
@@ -20,19 +21,25 @@ The most often used regularization is what is known as $L_{2}$ regularization, b
 
 \subsection{L2 Regularization}
 
-Without further adieu, refer to Equation \ref{eqn:frobenius}.
+\subsection{Frobenius or Euclidean Norm}
 
-\begin{gather} \label{eqn:frobenius}
+In general, $L_2$ regularization is based on the concept of the Frobenius norm, also known as the Euclidean norm.  It is essentially a measure of the distance amongst all the dimensions in a matrix, $M$, or vector, $v$.
+
+\begin{align} \label{eqn:frobenius}
+||M||_{F} = \sqrt(\sum_{i=1}^{R} \sum_{j=1}^{C} W_{ij}^{2})
+\end{align}
+
+Without further adieu, refer to Equation \ref{eqn:frobenius_W}.
+
+\begin{align} \label{eqn:frobenius_W}
 ||W||_{F} = \sqrt(\sum_{i=1}^{n^{l}} \sum_{j=1}^{n^{l-1}} W_{ij}^{2})
-\end{gather}
+\end{align}
 
 Where
 \begin{itemize}
 \item $n^{l}$ = number of features in layer l
 \item $n^{l-1}$ = number of features in layer l-1.
 \end{itemize}
-
-You can see the Frobenius Normal's relationship to the Euclidean distance formula: $d = \sqrt(x^{2} + y^{2})$, hence why it is analagous, but not quite the same.  Thus, "Euclidean Normal" is a reasonable misnomer.
 
 Finally, the $L_{2}$ regularization is just
 
@@ -93,7 +100,7 @@ Normalize variance:
 
 \begin{gather}
 \sigma^2 = \frac{1}{m} \sum_{i=1}^{m} (x^{(i)})^2 \\
-x /= \sigma^2
+x = x \div \sigma^2
 \end{gather}
 
 NOTE: Use the same $\mu$ and $\sigma^2$ on your test set as you did on your training set so that you can compare apples to apples.
@@ -136,5 +143,88 @@ As we multiply $W_2$ by itself multiple times, we will find that we end up with 
 Assume 1-layer neural network with 4 input features, $x$.  Then, $z = w_1 x_1 + w_2 x_2 + w_3 x_3 + w_4 x_4 + b$.  Therefore, to prevent $z$ from exploding, as $n -> \infty$, we want $w_i -> 0$.
 
 $W^{[l]} = np.random.randn(shape) * np.sqrt(\frac{2}{n^{[l-1]}})$
+
+\section{Gradient Checking}
+
+It is important to test your deep learning model's gradients against the actual gradients to see that you have achieved an accurate approximation.
+
+\subsection{Numerical Approximation of Gradients: Two-Sided Rule}
+
+First, let's describe a numerical method of approximating gradients.  Assume that $f(x)$ is continuous and smooth curve on the domain $[a,b]$  Then, the exact derivative is $f'(x)$ on $[a,b]$.  Also, it is well known that the derivative of $f'(x)$ can be written as
+
+\begin{align}
+f'(x) = \lim_{\epsilon \to 0} \frac{f(x + \epsilon) - f(x - \epsilon)}{(x + \epsilon) - (x - \epsilon)} \\
+= \lim_{\epsilon \to 0} \frac{f(x + \epsilon) - f(x - \epsilon)}{2 \epsilon}
+\end{align}
+
+So, given $f(x)$ and $f'(x)$, we can compute a numerical approximation of $f'(x)$ using this formula:
+
+\begin{align}
+g(x) = \frac{f(x + \epsilon) - f(x - \epsilon)}{(x + \epsilon) - (x - \epsilon)} \\
+= \frac{f(x + \epsilon) - f(x - \epsilon)}{2 \epsilon}
+\end{align}
+
+Where $\epsilon$ is some small, fixed value, such as 0.01.
+
+\subsubsection{Example}
+
+Assume $f(x) = x^3$ and $\epsilon = 0.01$.  Then,
+
+\begin{gather}
+f'(x) = 3 x^2 \\
+g(x) = \frac{f(x + 0.01) + f(x - 0.01)}{2 \epsilon}
+\end{gather}
+
+Now assume we choose $x = 3$ as a test location:
+
+\begin{gather}
+f'(3) = 27 \\
+g(3) = \frac{27.2709 - 26.7309}{0.02} = 27.0001
+\end{gather}
+\\
+Making $g(x)$ a good approximation to $f'(x)$ within 0.0001 units.
+
+\subsection{Gradient Checking in Practice}
+
+Reshape $W^{[1]}$, $b^{[1]}$, ... $W^{[L]}$, $b^{[L]}$ and $dW^{[1]}$, $db^{[1]}$, ... $dW^{[L]}$, $db^{[L]}$ into large, consolidated vectors, $\theta$ and $d\theta$, respectively.
+
+Now, our cost function is $J(\theta)$ instead of $J(W^{[1]}, b^{[1]}, ..., W^{[L]}, b^{[L]})$.  Therefore, we can write $J(\theta)$ as
+
+\begin{align}
+J(\theta) = J(\theta_1, \theta_2, ..., \theta_L)
+\end{align}
+
+For each dimension (or layer) of the function, we must compute $d\theta_{approx}$ as in Algorithm \ref{alg:grad_check}:
+
+\begin{algorithm}[h]
+\caption{Gradient Check}
+\label{alg:grad_check}
+\For{i:=1 to L}{
+$d\theta_{approx}[i] := \frac{J(\theta_1, \theta_2, ..., \theta_i + \epsilon, ..., \theta_L) + J(\theta_1, \theta_2, ..., \theta_i - \epsilon, ..., \theta_L)}{2 \epsilon}$\;
+}
+\end{algorithm}
+
+If $\theta$ has been chosen wisely, then
+
+\begin{align}
+d\theta_{approx}[i] \approx \frac{\partial{J}}{\partial{\theta_i}}
+\end{align}
+
+To compute the above formula, you can use the normalized Frobenius distance (e.g. Euclidean distance) referenced from Equation \ref{eqn:frobenius}:
+
+\begin{align}
+e = \frac{||d\theta_{approx} - d\theta||_2}{||d\theta_{approx}||_2 + ||d\theta||_2||}
+\end{align}
+
+In general, if you choose any value $\epsilon$ and the ratio above yields $e \leq \epsilon$, then your approximation is most likely good.  If your approximation is off by two orders of magnitude, it may be alright, but you will need to check all your components.  If it's off by higher orders of magnitude, it is most likely incorrect.
+
+\subsubsection{Implementation Notes}
+
+\begin{itemize}
+\item Don't use gradient checking in training, only to debug, because it is very slow.
+\item If grad check fails, look at each component of $d\theta_{approx}$ to identify which layer is causing problems.  You should notice that the component is quite a bit different than the similar component in $d\theta$.
+\item Grad check doesn't work with dropout regularization, because dropout is randomized and makes it difficult to compute $J$.
+\item Perform random initialization and train the model for a while before running grad check to let $W$ and $b$ wander away from the $\approx 0$ starting values.
+\end{itemize}
 
 \end{document}
