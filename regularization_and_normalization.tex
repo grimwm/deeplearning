@@ -1,8 +1,11 @@
 \documentclass{article}
-\usepackage{hyperref}
-\usepackage{float}
-\usepackage{amsmath}
 \usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{TODO #1}}
 
 \begin{document}
 
@@ -38,13 +41,87 @@ Oftentimes, it is okay not to have a dev set, using the test set as the dev set.
 
 \section{Bias and Variance}
 
+In a nutshell, \textbf{bias} is when a model is underfitting data, and \textbf{variance} is when a model is overfitting the data.  Basically, if the model is underfitting the data, the model will "bias" itself to more often than not wanting to say something is X when it is actually Y.  Variance, on the other hand, is when a model, more often than not, will fit the data so well that it can appear like the model is changing its classifications quite a lot, even with subtle changes in input.
 
+\todo{Add 2-feature graphics}
+
+\subsection{Example: Cats and Dogs}
+
+Generally speaking, humans are very adept at knowing the difference between a cat and dog on sight.  So, what if a learning model was trained to do the same thing?
+
+\paragraph{Variance}
+
+Assume,
+
+\begin{gather}
+Train set error: 1\% \\
+Dev set error: 11\%
+\end{gather}
+
+The model has obviously learned how to classify the training set properly, but it is doing poorly with the dev set.  In this situation, the model is overfitting the training set and "varying" a lot with the dev set.  For example, the model might be saying that cats are dogs and dogs are cats way more often than it should be, and it isn't clear which direction the model will go on any given input.
+
+In each of the following examples of classifying cats vs. dogs, we assume that humans have $\approx 0\%$ error performing this task.  Or, in math nomenclature, we say that the \textbf{Optimal Bayes Error} is $\approx 0\%$.
+
+\paragraph{Bias}
+
+Assume,
+
+\begin{gather}
+Train set error: 15\% \\
+Dev set error: 16\%
+\end{gather}
+
+In this case, the model is not doing well on either the training set of the dev set.  At the very least, the model is not varying much from the training set, but it appears to be underfitting or "biased" towards certain inputs.  For example, it is possible that it is often misclassifying cats as dogs but not necessarily dogs as cats.
+
+\paragraph{Bias and Variance}
+
+Assume,
+
+\begin{gather}
+Train set error: 15\% \\
+Dev set error: 30\%
+\end{gather}
+
+Return from whence ye came; this is really bad: high bias and high variance.
+
+\paragraph{Correct}
+
+Assume,
+
+\begin{gather}
+Train set error: 0.5\% \\
+Dev set error: 1\%
+\end{gather}
+
+This model is doing quite well with both low bias and low variance based on how well humans would do at this task, or how well it aligns with our optimal Bayes error.
+
+\subsection{Counter-Tactics}
+
+Here are some strategies to combat bias vs. variance.  Ask these questions and solve them in this order:
+
+\begin{itemize}
+\item High bias?
+  \begin{itemize}
+  \item Make a bigger NN with more hidden units or layers.
+  \item Train longer
+  \item Try optimization algorithms
+  \item Try different NN architecture
+  \end{itemize}
+\item High variance?
+  \begin{itemize}
+  \item More data
+  \item Regularization
+  \item Try different NN architecture
+  \end{itemize}
+\end{itemize}
+
+\subsection{Bias-Variance Tradeoff}
+
+It used to be a problem that the tools available to reduce bias or variance would negatively impact the other.  However, these days, it is not as much of a problem.
 
 \section{Regularization}
 
 The most often used regularization is what is known as $L_{2}$ regularization, but the more formal name for it is the scaled square of the "Frobenius Normal" or analogously, the "Euclidean Normal".  Although, in practice, the "Euclidean Normal" is a bit of a misnomer when dealing with matrices, but you will quickly see the similarities between the "Frobenius Normal" and Euclidean distance normalization for a vector.
-
-\subsection{L2 Regularization}
 
 \subsection{Frobenius or Euclidean Norm}
 
@@ -53,6 +130,8 @@ In general, $L_2$ regularization is based on the concept of the Frobenius norm, 
 \begin{align} \label{eqn:frobenius}
 ||M||_{F} = \sqrt(\sum_{i=1}^{R} \sum_{j=1}^{C} W_{ij}^{2})
 \end{align}
+
+\subsection{L2 Regularization}
 
 Without further adieu, refer to Equation \ref{eqn:frobenius_W}.
 
@@ -78,16 +157,7 @@ Where $\frac{\lambda}{2m}$ is just a scaling constant and can be virtually anyth
 \frac{d[L_{2}]}{dW} = \frac{\lambda}{m} \sum_{l=1}^{L} W
 \end{gather}
 
-\subsection{L1 Regularization}
-
-$L_{1}$ is a less-used regularization, with the idea being that $W$ could be made more sparse (e.g. with more 0s).  You will have to experiment with whether or not this style of regularization would work for you.  Its formula is seen in Equation \ref{eqn:l1}
-
-\begin{gather} \label{eqn:l1}
-L_{1} = \frac{\lambda}{2m} ||W||_{F} \\
-\frac{d[L_{1}]}{dW} = \frac{\lambda}{2m}
-\end{gather}
-
-\subsection{Cost Function, J}
+\subsubsection{Cost Function, J}
 
 Using the newly learned $L_2$ regularization, let's see how it would apply to the cost function, $J$.
 
@@ -95,7 +165,7 @@ Using the newly learned $L_2$ regularization, let's see how it would apply to th
 J(W, b) = \frac{1}{m} \sum(\hat{y}, y) + \frac{\lambda}{2m} ||W||_{F}^{2}
 \end{gather}
 
-\subsection{Back Propagation}
+\subsubsection{Back Propagation}
 
 Again, using $L_2$ regularization, let's see how it applies to back propagation values $dW$ and $db$.
 
@@ -108,6 +178,36 @@ W = W - \alpha dW = W - \alpha (D + \frac{\alpha \lambda}{m} W^{[l]} \\
 Where $D$ is the value computed from normal back propagation without regularization.  Hence, regularization is added to the derivative AFTER the derivative is calculated in back propagation.  It almost would seem better just to call it $dW$, but I want to stress the point that $D$ is calculated first and separately.
 
 Due to the term $W - \frac{\alpha\lambda}{m} W$, $L_2$ regularization is also known as \textbf{weight decay}, because we end up multiplying $W$ by $(1 - \frac{\alpha\lambda}{m})$, which ends up multiplying $W$ by a value just a bit under $1$.  Therefore, $L_2$ is decaying $W$.
+
+\subsection{L1 Regularization}
+
+$L_{1}$ is a less-used regularization, with the idea being that $W$ could be made more sparse (e.g. with more 0s).  You will have to experiment with whether or not this style of regularization would work for you.  Its formula is seen in Equation \ref{eqn:l1}
+
+\begin{gather} \label{eqn:l1}
+L_{1} = \frac{\lambda}{2m} ||W||_{F} \\
+\frac{d[L_{1}]}{dW} = \frac{\lambda}{2m}
+\end{gather}
+
+\subsection{Dropout Regularization}
+
+Basically, at each layer of the network, layers are randomly removed if $T > P$ where "T" is a random number toss and "P" is the probability that the node should remain.  Essentially, the larger "P" is (up to 1.0), the higher the chance the node will \textit{not} be removed.
+
+\subsubsection{One Implementation: Inverted Dropout}
+
+\begin{algorithm}[h]
+\caption{Inverted Dropout}
+$d_3 \gets np.random.rand(a_3.shape[0], a_3.shape[1]) < P$ \;
+$a_3 \gets a_3 * d_3$ \;
+$a_3 \gets a_3 / P$ \; \label{line:inverted_dropout}
+\end{algorithm}
+
+Line \ref{line:inverted_dropout} in our algorithm above is scaling $a_3$ up by the number of nodes that were removed.  Otherwise, when $z^{[3]} = W^{[3]} a^{[3]} + b^{[3]}$, $a^{[3]}$ is calculated, it will have been reduced by a proportional amount, $P$.  So, dividing $a_3$ by $P$ is called \textit{inverted dropout} and prevents $z^{[3]}$ from being reduced.
+
+The real impetus for "inverted dropout" is not necessarily for the training set.  However, it will ensure that all our activations are in the same scale as our test set, making testing easier.
+
+\subsubsection{Test Time}
+
+Do not use dropout regularization (e.g. set $P = 0$), because it will make our model random, and that is difficult to test.
 
 \section{Normalization}
 
