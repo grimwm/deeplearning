@@ -340,8 +340,10 @@ d\theta_{approx}[i] \approx \frac{\partial{J}}{\partial{\theta_i}}
 To compute the above formula, you can use the normalized Frobenius distance (e.g. Euclidean distance) referenced from Equation \ref{eqn:frobenius}:
 
 \begin{align}
-e = \frac{||d\theta_{approx} - d\theta||_2}{||d\theta_{approx}||_2 + ||d\theta||_2||}
+e = \frac{||d\theta_{approx} - d\theta||_2}{||d\theta_{approx}||_2 + ||d\theta||_2}
 \end{align}
+
+How does this formula work?  Well, imagine $d\theta$ and $d\theta_{approx}$ as simple 2-d or 3-d vectors.  When we find the distance of $d\theta_{approx} - d\theta$, we are actually finding the distance of a new vector that connects the tail of vector $d\theta_{approx}$ to the head of vector $d\theta$.  If this new vector is the result of two vectors, $d\theta_{approx}$ and $d\theta$ being very similar (e.g. the same length and direction), then the numerator will be quite small.  The denominator is necessary for the final error calculation, since error is calculated as $\frac{dV}{V}$.
 
 In general, if you choose any value $\epsilon$ and the ratio above yields $e \leq \epsilon$, then your approximation is most likely good.  If your approximation is off by two orders of magnitude, it may be alright, but you will need to check all your components.  If it's off by higher orders of magnitude, it is most likely incorrect.
 
