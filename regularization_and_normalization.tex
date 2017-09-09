@@ -192,6 +192,8 @@ L_{1} = \frac{\lambda}{2m} ||W||_{F} \\
 
 Basically, at each layer of the network, layers are randomly removed if $T > P$ where "T" is a random number toss and "P" is the probability that the node should remain.  Essentially, the larger "P" is (up to 1.0), the higher the chance the node will \textit{not} be removed.
 
+\textbf{Note}: Dropout regularization should only be used during the training phase.  Otherwise, the model will give non-deterministic results at test and production times.  Besides, regularization is only used to help models during their training period, which is clearer to understand by reading \href{https://en.wikipedia.org/wiki/Regularization_(mathematics)}{Wikipedia's article on regularization}.
+
 \subsubsection{One Implementation: Inverted Dropout}
 
 \begin{algorithm}[h]
