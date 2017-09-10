@@ -15,7 +15,7 @@
 \maketitle
 
 \begin{abstract}
-When you build NN, you will find that in many cases, you end up either with underfitting, known as bias, or overfitting, known as variance.  Regularization aids you in removing variance at the expense of potentially adding bias if you add too much regularization to the cost function, $J$.
+In many cases, when building a Neural Network, you end up either with underfitting, known as bias, or overfitting, known as variance.  Regularization aids in removing variance, and with today's maths, it does not often affect bias negatively.
 \end{abstract}
 
 \section{Training, Development, and Test Sets}
@@ -54,8 +54,8 @@ Generally speaking, humans are very adept at knowing the difference between a ca
 Assume,
 
 \begin{gather}
-Train set error: 1\% \\
-Dev set error: 11\%
+e_{train}: 1\% \\
+e_{dev}: 11\%
 \end{gather}
 
 The model has obviously learned how to classify the training set properly, but it is doing poorly with the dev set.  In this situation, the model is overfitting the training set and "varying" a lot with the dev set.  For example, the model might be saying that cats are dogs and dogs are cats way more often than it should be, and it isn't clear which direction the model will go on any given input.
@@ -67,8 +67,8 @@ In each of the following examples of classifying cats vs. dogs, we assume that h
 Assume,
 
 \begin{gather}
-Train set error: 15\% \\
-Dev set error: 16\%
+e_{train}: 15\% \\
+e_{dev}: 16\%
 \end{gather}
 
 In this case, the model is not doing well on either the training set of the dev set.  At the very least, the model is not varying much from the training set, but it appears to be underfitting or "biased" towards certain inputs.  For example, it is possible that it is often misclassifying cats as dogs but not necessarily dogs as cats.
@@ -78,8 +78,8 @@ In this case, the model is not doing well on either the training set of the dev 
 Assume,
 
 \begin{gather}
-Train set error: 15\% \\
-Dev set error: 30\%
+e_{train}: 15\% \\
+e_{dev}: 30\%
 \end{gather}
 
 Return from whence ye came; this is really bad: high bias and high variance.
@@ -89,8 +89,8 @@ Return from whence ye came; this is really bad: high bias and high variance.
 Assume,
 
 \begin{gather}
-Train set error: 0.5\% \\
-Dev set error: 1\%
+e_{train}: 0.5\% \\
+e_{dev}: 1\%
 \end{gather}
 
 This model is doing quite well with both low bias and low variance based on how well humans would do at this task, or how well it aligns with our optimal Bayes error.

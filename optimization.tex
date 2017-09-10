@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{TODO #1}}
+
+\begin{document}
+
+\title {Bias and Variance: Regularization and Normalization}
+\author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+Training neural networks is a highly iterative process; so, it helps a lot to train a deep learning model quickly.  There are various optimization algorithms to help mitigate this empirical analysis cycle.
+\end{abstract}
+
+\section{Mini-Batch Gradient Descent}
+
+In this section, we will be discussing matrices and vectors that look like the following:
+
+\begin{gather}
+\label{eqn:input_matrices}
+X = \begin{bmatrix}
+x^{(1)}, x^{(2)}, ..., x^{(1000)}, x^{(1001)}, ..., x^{(2000)}, ..., x^{(m)}
+\end{bmatrix}\\
+%
+y = \begin{bmatrix}
+y^{(1)}, y^{(2)}, ..., y^{(1000)}, y^{(1001)}, ..., y^{(2000)}, ..., y^{(m)}
+\end{bmatrix}
+\end{gather}
+
+Remember that $X$ is an $(n_x, m)$ matrix and y is a $(1, m)$ vector.
+
+\subsection{Gradient Descent: Vectorization and Mini-Batching}
+
+Modern linear algebra libraries allow computer programs to computer matrix math very quickly.  For example, given an $(n_x, m)$ matrix and a $(1, m)$ vector as seen in \ref{eqn:input_matrices}, an NN can compute gradient descent quickly, assuming $m$ is a reasonable size.
+
+However, what about when $m$ is very large?  Then, vectorization of gradient descent can still be too slow.
+
+Assume for a moment that $m = 5,000,000$ and that this number of samples would be much too slow to handle directly.  Then, we could, for example, split $X$ into several mini-batches, $X^{\{1\}}, X^{\{2\}}, ..., X^{\{5000\}}$, each containing 1,000 entries from $X$.  Similarly, we will do the same for $y^{\{1\}}, y^{\{2\}}, ..., y^{\{5000\}}$.
+
+When we iterate these, we use the new notation, $X^{\{t\}}, y^{\{t\}}$ to indicate the $t^{th}$ mini-batch.  If the mini-batch size is 1,000, as in our exmaple above, then the shapes of $X^{\{t\}}$ and $y^{\{t\}}$, respectively, are $(n_x, 1000), (1, 1000)$.
+
+So, how is it implemented?  It's implemented exactly the same as normal gradient descent, also known as "batch gradient descent", except it has an additional loop that feeds the gradient descent algorithm piecemeal.  See Algorithm \ref{alg:mini_batch_grad}.
+
+\begin{algorithm}[h]
+\label{alg:mini_batch_grad}
+\caption{Mini-Batch Gradient Descent}
+\For{$i \gets 0$ \KwTo numiters}{
+  \For{$t \gets 0$ \KwTo $\frac{m}{b}$}{
+  parameters = grad\underline{ }descent($X^{\{t\}}, y^{\{t\}}$, parameters) \;
+}}
+\end{algorithm}
+
+
+\end{document}
