@@ -195,4 +195,128 @@ $V_{dW} = 0$ is actually a matrix of zeros with the same dimensions as $dW$ and 
 
 Commonly, EWMAs are iterated without multiplying the current derivatives by $(1-\beta)$.  The net effect is that the EWMAs are scaled by a factor of $(1-\beta)$, and so the learning rate must be scaled by $\frac{1}{1-\beta}$, which is not all that intuitive and could lead to having to recalibrate $\alpha$ when calibrating $\beta$.
 
+\section{RMSProp: Root Mean Squared Propagation}
+
+\begin{algorithm}[h]
+\label{alg:rmsprop}
+\caption{Root Mean Squared Propagation}
+Compute dW,db on current mini-batch \;
+$S_{dW} = \beta S_{dW} + (1-\beta) dW^2$ \; \label{line:rmsprop_sdw}
+$S_{db} = \beta S_{db} + (1-\beta) db^2$ \; \label{line:rmsprop_sdb}
+$W = W - \alpha \frac{dW}{\sqrt{S_{dW}} + \epsilon}$ \;
+$b = b - \alpha \frac{db}{\sqrt{S_{db}} + \epsilon}$ \;
+\end{algorithm}
+
+It should be noted that Lines \ref{line:rmsprop_sdw} and \ref{line:rmsprop_sdb} from Algorithm \ref{alg:rmsprop} are performing element-wise squaring.  So, in essence, these are EWMAs of the squared weights and intercepts.
+
+Due to the nature of our derivatives, $db$ tends to be very large and $dW$ tends to be very small.  So, if $b$ is the "y-axis" and $W$ is the "x-axis", then doing the divisions by $\sqrt{x}$ will tamp down $b$ oscillations a lot while increasing the oscillation of $W$, which is our desired goal.
+
+\paragraph{Important note on $\beta$}
+
+We will call the $\beta$ used in \textit{RMSProp} as $\beta_2$ going forward, as we combine both \textit{RMSProp} and \textit{Gradient Descent with Momentum}.
+
+\paragraph{What is $\epsilon$?}
+
+This exists to prevent "divide by 0" errors by adding a very small number to the denominator.
+
+\paragraph{RMSProp Fun Fact}
+
+\textit{RMSProp} wasn't introduced in an academic paper.  It was introduced in an online \textit{Coursera} course.
+
+\section{Adam Optimization Algorithm}
+
+\textit{Adam Optimization} stands for "adaptive moment estimation optimization" and is going to be a combination of both \textit{Gradient Descent with Momentum} and \textit{RMSProp}, as seen in Algorithm \ref{alg:adam_opt}.
+
+\begin{algorithm}[h]
+\label{alg:adam_opt}
+\caption{Adam Optimization Algorithm}
+$V_{dW} = 0$ \;
+$S_{dW} = 0$ \;
+$V_{db} = 0$ \;
+$S_{db} = 0$ \;
+
+\For{$i \gets 0$ \KwTo numiters}{
+  \For{$t \gets 0$ \KwTo $\frac{m}{b}$}{
+    \tcc{Compute gradient descent using mini-batch}
+    parameters = grad\underline{ }descent($X^{\{t\}}$, $y^{\{t\}}$, parameters) \;
+    dW = parameters["dW"] \;
+    db = parameters["db"] \;
+    
+    \tcc{Compute momentum}
+    $V_{dW} = \beta_1 V_{dW} + (1-\beta_1) dW$ \;
+    $V_{db} = \beta_1 V_{db} + (1-\beta_1) db$ \;
+    
+    \tcc{Compute RMSProp}
+    $S_{dW} = \beta_2 S_{dW} + (1-\beta_2) dW^2$ \;
+    $S_{db} = \beta_2 S_{db} + (1-\beta_2) db^2$ \;
+    
+    \tcc{Compute bias correction}
+    $V_{dW}^{b} = \frac{V_{dW}}{1-\beta_1^t}$ \;
+    $V_{db}^{b} = \frac{V_{db}}{1-\beta_1^t}$ \;
+    $S_{dW}^{b} = \frac{V_{dW}}{1-\beta_1^t}$ \;
+    $S_{db}^{b} = \frac{V_{db}}{1-\beta_1^t}$ \;
+    
+    \tcc{Update}
+    $W = W - \alpha\frac{V_{dW}^{b}}{\sqrt{S_{dW}^{b}} + \epsilon}$ \;
+    $b = b - \alpha\frac{V_{db}^{b}}{\sqrt{S_{db}^{b}} + \epsilon}$ \;
+  }
+}
+\end{algorithm}
+
+\paragraph{Hyperparameter Choices}
+
+\begin{itemize}
+\item $\alpha$ needs to be tuned
+\item $\beta_1$ is typically 0.9 and is related to the \textit{expoentially weighted moving average}
+\item $\beta_2$ is recommended to be 0.999 and is related to the squared values of the EWMA
+\item $\epsilon$ doesn't matter a lot but is recommended to be $10^{-8}$
+\end{itemize}
+
+\section{Learning Rate Decay}
+
+The intuition is that at first, there will be some noise, but as the algorithm gets closer to the global minimum, we should slow down our learning rate to get better approximations.
+
+\paragraph{Terminology}
+
+One \textbf{epoch} will be one pass through an entire batch of data.  Thus, in the case of mini-batches, it will be one pass through all the mini-batches.
+
+Basically, the \textit{learning rate decay} is defined as follows:
+
+\begin{align}
+\alpha = \frac{\alpha_0}{1 + d * epoch}
+\end{align}
+
+Where $d$ is our decay rate.
+
+\subsection{Example}
+
+Let $\alpha_0 = 0.2$ and $d = 1$:
+
+\begin{tabular}{c | l}
+epoch & $\alpha$ \\ \hline
+1 & 0.100 \\
+2 & 0.067 \\
+3 & 0.050 \\
+4 & 0.040 \\
+... & ...
+\end{tabular}
+
+\subsection{Other Decay Methods}
+
+\paragraph{Exponential Decay}
+
+$\alpha = n^{epoch} \alpha_0$, where $0 < n < 1$
+
+\paragraph{Root Decay}
+
+$\alpha = \frac{k}{\sqrt{epoch}} \alpha_0$ or $\alpha = \frac{k}{\sqrt{t}} \alpha_0$
+
+\paragraph{Discrete Decay}
+
+Every so many iterations of $t$, decay $\alpha$ by a fixed amount.
+
+\paragraph{Manual Decay}
+
+Sometimes, when working with just a few number of models that train over the course of several hours or several days, someone might manually change $\alpha$ based on noticing that the model learning rate has slowed down.
+
 \end{document}
