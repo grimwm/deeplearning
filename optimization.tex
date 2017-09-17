@@ -9,10 +9,13 @@
 
 \begin{document}
 
-\title {Bias and Variance: Regularization and Normalization}
+\title {Optimization Algorithms:\\
+Mini-Batches, Exponentially Weighted Averages, and More}
 \author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
 
 \maketitle
+
+\tableofcontents
 
 \begin{abstract}
 Training neural networks is a highly iterative process; so, it helps a lot to train a deep learning model quickly.  There are various optimization algorithms to help mitigate this empirical analysis cycle.
@@ -56,5 +59,140 @@ So, how is it implemented?  It's implemented exactly the same as normal gradient
 }}
 \end{algorithm}
 
+\subsubsection{Choosing Mini-Batch Size}
+
+Assume $k = \frac{m}{b}$, where $m$ is the number of training samples,
+$b$ is the number of items in the mini-batch.  Then, $s$ is the number of mini-batches.
+
+\begin{enumerate}
+\item If $s = m$, then we have \textbf{batch gradient descent}: $(X^{\{1\}}, Y^{\{1\}}) = (X, Y)$
+  \begin{enumerate}
+  \item Smooth gradient curve converging towards the global minimum,
+        assuming all hyperparameters chosen correctly.
+  \item Too long to compute per iteration.
+  \end{enumerate}
+\item If $s = 1$, then we have \textbf{stochastic gradient descent}: $(x^{\{t\}}, y^{\{t\}}) = x^{(t)}, y^{(t)})$
+  \begin{enumerate}
+  \item Bounces around the global minimum but does not completely converge; although, this can be ameliorated with slowing down the learning rate.
+  \item Loses all the speedup from vectorization, because we are only processing one vector at a time rather than the full matrix.
+  \end{enumerate}
+\item If $1 < s < m$, it results in the fastest learning.
+  \begin{enumerate}
+  \item Allows vectorization.
+  \item Makes incremental progress without waiting for an entire training set to complete.
+  \item Not guaranteed to converge to the global minimum, but it does oscillate closely.  This can be ameliorated by slowing down the learning rate.
+  \end{enumerate}
+\end{enumerate}
+
+Guidelines to choosing $s$:
+
+\begin{enumerate}
+\item If using small training set, let $s = m$
+\item Typical mini-batch sizes: $64 \leq s \leq 512 | s = 2^k$
+\item Make sure $s$ fits inside CPU / GPU memory
+\end{enumerate}
+
+\section{Exponentially Weighted Moving Average}
+
+The formula for the \textbf{exponentially weighted moving average}\footnote{We will be calling this the \textbf{exponentially weighted average} as well} is given by
+
+\begin{equation}
+V_t = \beta V_{t-1} + (1-\beta) \theta_t
+V_0 = 0
+\end{equation}
+
+Where $\theta_t$ is the unit being measured and $\beta$ is the weight being applied to the previous value, $V_{t-1}$.
+
+Given $\beta$, then $V_t \approx$ last $\frac{1}{1-\beta}$'s unit measurement (e.g. if using day's temperature and $\beta = 0.9$, then $V_t \approx $ average of last $10$ days' temperature.
+
+The reason for why this is called the \textbf{exponentially weighted moving average} can be shown fairly straightforwardly:
+
+\begin{gather}
+V_t = (1 - \beta) \theta_t + \beta V_{t-1} \\
+V_t = (1 - \beta) \theta_t + \beta ((1-\beta) \theta_{t-1} + \beta V_{t-2}) \\
+V_t = (1 - \beta) \theta_t + \beta (1-\beta) \theta_{t-1} + \beta^2 (1-\beta) \theta_{t-2} + ... + \beta^t (1-\beta) \theta_0 \label{eqn:ewma}
+\end{gather}
+
+Summing just the coefficients from \ref{eqn:ewma}, we have
+
+\begin{align}
+(1-\beta) + \beta(1-\beta) + \beta^2(1-\beta) + ... + \beta^t(1-\beta) \\
+= \lim_{t \rightarrow \infty} \left( (1-\beta) \sum_{i=0}^{t} \beta^i \right) \approx 1
+\end{align}
+
+\subsection{Time Constant}
+
+The value for how many days are averaged is decided by an \href{https://en.wikipedia.org/wiki/Exponential_smoothing#Time_Constant}{"arbitrary" time constant} chosen to be
+
+\begin{equation}
+\tau = (1-\epsilon)^{\frac{1}{\epsilon}} \approx \frac{1}{e} \label{eqn:tau}
+\end{equation}
+
+Equation \ref{eqn:tau} is chosen so that our signal smooths to approximately $\frac{1}{e}$ after just $(1-\epsilon)^\frac{1}{\epsilon}$ previous data points.
+
+\subsection{Concrete Example}
+
+Given that our time scale is in days and
+
+\begin{align}
+\beta = 0.9 \\
+1-\beta = \epsilon = 0.1
+\end{align}
+
+Then,
+
+\begin{align}
+\tau = (1 - \epsilon)^\frac{1}{\epsilon} \\
+= \beta^\frac{1}{1-\beta} \\
+= 0.9^{10} \approx \frac{1}{e}
+\end{align}
+
+Or, in other words, $V_t = 0.9 V_{t-1} + 0.1 \theta_t$ is averaging about the last 10 days.
+
+\subsection{EWMA vs Simple Average}
+
+The EWMA is computationally superior to the simple average, even though it is not quite as accurate.  For example, the simple average will be a correct average for the last 10 days, while the EWMA will be some approximation to that average over the same time window.  However, the EWMA can be calculated using $O(1)$ space and $O(n)$ steps, making it superior in terms of space complexity.
+
+\subsection{Bias Correction in Exponentially Weighted Moving Averages}
+
+For the initial values of $V_0, V_1, V_2, ...$, $V_t$ will not properly represent the initial values.  So, to correct for the multiplying $\theta_1, \theta_2, \theta_3, ...$ by $(1-\beta)$, we will boost the values like this:
+
+\begin{align}
+\frac{V_t}{1-\beta^t}
+\end{align}
+
+Having said all this, for most implementations of machine learning algorithms, most people don't bother with bias correction, because they wait for enough data to remove the bias.  However, if someone is worried about bias during the "warmup period", then bias correction is useful.
+
+\section{Gradient Descent with Momentum}
+
+Summary: compute the \textit{exponentially weighted average} of the gradients during backpropagation and then use these gradients to update the weights.
+
+Remember that \textbf{mini-batch gradient descent} causes oscillations towards the global minimum, which slows down gradient descent and prevents the use of a larger learning rate.  In fact, a larger learning rate could cause diversion from the global minimum (exploding gradients).
+
+\begin{algorithm}[h]
+\label{alg:grad_with_momentum}
+\caption{Gradient Descent with Momentum}
+Compute dW,db on current mini-batch. \;
+$V_{dW} = \beta V_{dW} + (1-\beta) dW$ \;
+$V_{db} = \beta V_{db} + (1-\beta) db$ \;
+$W = W - \alpha V_{dW}$ \;
+$b = b - \alpha V_{db}$ \;
+\end{algorithm}
+
+\paragraph{Why is it called momentum?}
+
+Imagine a ball rolling down hill to the global minimum.  The derivatives act as \textit{acceleration}, and the stored average acts as the \textit{velocity} while $\beta$ acts as \textit{friction} to slow the ball down.  Therefore, over time, the ball can gain \textit{momentum} towards the global minimum without veering off course (e.g. \textit{exploding gradients}).
+
+\paragraph{Choice of $\beta$}
+
+In practice, $\beta = 0.9$ is a very common choice.  Also, \textit{bias correction} is not normally done with this value of $\beta$, because after only 10 iterations, the moving average will have "warmed up" and no longer be biased.
+
+\paragraph{Implementation Notes}
+
+$V_{dW} = 0$ is actually a matrix of zeros with the same dimensions as $dW$ and $W$.  Likewise, $V_{db} = 0$ is actually a vector of zeros with the same dimensions as $db$ and $b$.
+
+\paragraph{Notes on "The Literature"}
+
+Commonly, EWMAs are iterated without multiplying the current derivatives by $(1-\beta)$.  The net effect is that the EWMAs are scaled by a factor of $(1-\beta)$, and so the learning rate must be scaled by $\frac{1}{1-\beta}$, which is not all that intuitive and could lead to having to recalibrate $\alpha$ when calibrating $\beta$.
 
 \end{document}
