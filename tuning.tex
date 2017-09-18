@@ -1,0 +1,70 @@
+\documentclass{article}
+\usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{TODO #1}}
+
+\begin{document}
+
+\title {Optimization Algorithms:\\
+Mini-Batches, Exponentially Weighted Averages, and More}
+\author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+There are even more methods to try when trying to optimize deep learning models for maximum performance and proper characteristics.  Some of these topics range from \textit{hyperparameter tuning} to \textit{batch normalization} to \textit{multi-class classification}.
+\end{abstract}
+
+\section{Hyperparameter Tuning}
+
+\paragraph{Hyperparameter Sampling}
+
+To determine which hyperparameters are the most important to tune, randomly sample hyperparameters and train with them.  This will help determine which ones are most important.
+
+Having said this, generally speaking, $\alpha$ is the most important parameter to tune.  Afterwards, it is \textit{\# hidden units}, \textit{mini-batch size}, etc.  This choice of which ones are important will come with experience, but, nevertheless, use \textit{hyperparameter sampling} to find the appropriate values.
+
+\paragraph{Random Number Scale}
+
+Do not use linear random sampling, because with denominators that are very sensitive to values close to 1 (e.g. $\frac{1}{1-\beta}$), normal linear random sampling can dramatically change results.  Instead, use log-scale random sampling to choose "r" (e.g. choose \textit{r=-k*np.random.rand()} for a value of "r" between -k and 0).  Then, the actual random value becomes $10^r$, or in the case of certain formulas, it might be chosen as $1 - 10^r$.
+
+\paragraph{Re-Test}
+
+As hardware, data, and software change, the choice of hyperparameters can become stale.  Therefore, it's important to retest the optimal values of the hyperparameters at least once every few months.
+
+\paragraph{Babysitting One Model vs. Training Many Models in Parallel}
+
+In the babysitting one model approach, one training model is used over the course of many hours or days, and the learning rate is nudged every so often to try and optimize the costs.  This approach is generally used when there are not enough computing resources for training in parallel, which can happen with massive amounts of data.
+
+In the parallel training scenario, many training models are run in parallel.  After some time, graphs of the costs can be compared so the best model can be chosen.  This is generally acceptable when there are lots of computer resources for training.
+
+\section{Batch Normalization to Speed Up Learning}
+
+Remember that normalizing the input data was used to take elongated contours of features and normalizing them to be more concentric.  This was done by calculating the mean, $\mu$, and the variance, $\sigma^2$, and applying them to the input features, $X$: $X = X - \mu$ and $X = X / \sigma^2$.  This worked well for a single layer, single hidden unit learning model (e.g. logistic regression).
+
+In the case of a larger network, apply the above normalization ideas to each $Z^{[l]}$.  it can instead be done to $A^{[l]}$, but it is more normal to apply normalization before the activations.  Here are the formulas to use:
+
+\begin{gather}
+\mu = \frac{1}{m} \sum_i z^{[l](i)} \\
+\sigma^2 = \frac{1}{m} \sum_i \left(z^{[l](i)} - \mu\right)^2 \\
+z_{norm}^{[l](i)} = \frac{z^{(i)} - \mu}{\sqrt{\sigma^2 + \epsilon}}
+\end{gather}
+
+However, it's not always desirable for hidden units to have $\mu$ about 0 and $\sigma^2$ about 1.  In this case, we calculate the following:
+
+\begin{equation}
+\tilde{z}^{[l](i)} = \gamma z_{norm}^{[l](i)} + \beta
+\end{equation}
+
+In this case, both $\gamma$ and $\beta$ are learnable parameters.  These come in handy, for example, when computing the sigmoid function, because we don't want to force $\mu$ about 0 and $\sigma^2$ about 1 since the sigmoid function itself generally has a different mean and variance.
+
+\paragraph{No $b$ Values}
+
+When performing batch normalization in a network, all the means are subtracted from $Z^{[l]}$, which removes all the constants.  Therefore, when performing \textit{batched gradient descent} or \textit{mini-batched gradient descent} when using \textit{batch normalization}, there is no reason to consider $b$ vectors.
+
+\end{document}
