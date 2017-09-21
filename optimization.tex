@@ -321,4 +321,12 @@ Every so many iterations of $t$, decay $\alpha$ by a fixed amount.
 
 Sometimes, when working with just a few number of models that train over the course of several hours or several days, someone might manually change $\alpha$ based on noticing that the model learning rate has slowed down.
 
+\section{The Problem of Local Optima}
+
+In the early days of neural networks, plotting a graph in 2-d or 3-d space would make it appear as though it would be easy to hit a local optima and optimize that instead of the global minimum.  However, this initial intuition was wrong.  With high-dimensional data (e.g. $d \geq 20000$), the chances of that happening are very low, and what normally happens is that a \textit{saddle point} is hit, because the chances that all, e.g. 20,000, dimensions are facing the same direction is quite low.
+
+\paragraph{Plateaus}
+
+Instead, \textit{plateaus} can be more a problem and slow down learning.  \textit{Plateaus} basically can have slopes close to 0 for a very long time.  This is an area where \textit{momentum} and \textit{RMSProp} can help get off the plateaus.
+
 \end{document}
