@@ -44,4 +44,78 @@ t = e^{Z^{[L]}} \\
 a^{[L]} = g^{[L]}(z^{[L]}) = \frac{e^{z^{[L]}}}{\sum_{j=1}^{C} t_i}
 \end{gather}
 
+\subsection{Why is it called "Softmax"?}
+
+Using the example:
+
+\begin{align}
+z^{[L]} =
+\begin{bmatrix}
+5 \\
+2 \\
+-1 \\
+3
+\end{bmatrix} \\
+%
+t =
+\begin{bmatrix}
+e^5 \\
+e^2 \\
+e^{-1} \\
+e^3
+\end{bmatrix}
+\end{align}
+
+The activation function becomes
+
+\begin{equation}
+a^{[L]} = g^{[L]}(z^{[L]} = \begin{bmatrix}
+e^5 \div t_{1,1} \\
+e^2 \div t_{2,1} \\
+e^{-1} \div t_{3,1} \\
+e^{3} \div t_{4,1}
+\end{bmatrix} = \begin{bmatrix}
+0.842 \\
+0.042 \\
+0.002 \\
+0.114
+\end{bmatrix}
+\end{equation}
+
+In contrast, if this was a \textit{hardmax}, our matrix would have a hard max value and 0 for everything else:
+
+\begin{equation}
+a^{[L]} = \begin{bmatrix}
+1 \\
+0 \\
+0 \\
+0
+\end{bmatrix}
+\end{equation}
+
+\paragraph{C = 2}
+
+Softmax essentially reduces to logistic regression.
+
+\subsection{Loss Function}
+
+\begin{equation}
+\label{eqn:loss}
+L(\hat{y}, y) = -\sum_{j=1}^{C} \left( y_j \log\hat{y}_j \right)
+\end{equation}
+
+The above formula in Equation \ref{eqn:loss} is a form of \href{http://mathworld.wolfram.com/MaximumLikelihood.html}{\textbf{maximum likelihood estimation}}.
+
+\subsection{Cost Function}
+
+\begin{equation}
+J(W^{[1]},b^{[1]},...) = \frac{1}{m}\sum_{i=1}^{m} L(\hat{y}^{(i)}, y^{(i)})
+\end{equation}
+
+\subsection{Gradient Descent with Softmax}
+
+\begin{align}
+\frac{\partial{J}}{\partial{z^{[L]}}} = \hat{y} - y = a^{[L]} - y
+\end{align}
+
 \end{document}
