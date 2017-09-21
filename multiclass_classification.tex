@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{TODO #1}}
+
+\begin{document}
+
+\title {Multiclass Classification}
+\author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
+
+\maketitle
+
+\tableofcontents
+
+\section{Softmax Regression}
+
+\textit{Softmax regression} is a generalization of logistic regression that allows our neural networks to classify inputs into any one of $C$ classifications.
+
+\begin{itemize}
+\item $C$ = \#classes
+\item $n^{[L]} = C$
+\item $\hat{y}$ is a (C,1) vector describing the probability that the inputs belong to each of the classifications in C
+\item $\sum_{i} \hat{y}_{i,1} = 1$
+\end{itemize}
+
+\subsection{How to Implement}
+
+\paragraph{Linear Z Computation}
+
+\begin{equation}
+z^{[L]} = W^{[L]}a^{[L-1]} + b^{[L]}
+\end{equation}
+
+Since we are only testing one example at a time, both $a^{[L]}$ and $z^{[L]}$ are (C,1) vectors.
+
+\paragraph{Activation Function}
+
+\begin{gather}
+t = e^{Z^{[L]}} \\
+a^{[L]} = g^{[L]}(z^{[L]}) = \frac{e^{z^{[L]}}}{\sum_{j=1}^{C} t_i}
+\end{gather}
+
+\end{document}

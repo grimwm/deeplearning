@@ -1,0 +1,65 @@
+\documentclass{article}
+\usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{TODO #1}}
+
+\begin{document}
+
+\title {Batch Normalization}
+\author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
+
+\maketitle
+
+\tableofcontents
+
+\section{Batch Normalization to Speed Up Learning}
+
+Remember that normalizing the input data was used to take elongated contours of features and normalizing them to be more concentric.  This was done by calculating the mean, $\mu$, and the variance, $\sigma^2$, and applying them to the input features, $X$: $X = X - \mu$ and $X = X / \sigma^2$.  This worked well for a single layer, single hidden unit learning model (e.g. logistic regression).
+
+In the case of a larger network, apply the above normalization ideas to each $Z^{[l]}$.  it can instead be done to $A^{[l]}$, but it is more normal to apply normalization before the activations.  Here are the formulas to use:
+
+\begin{gather}
+\mu = \frac{1}{m} \sum_i z^{[l](i)} \\
+\sigma^2 = \frac{1}{m} \sum_i \left(z^{[l](i)} - \mu\right)^2 \\
+z_{norm}^{[l](i)} = \frac{z^{(i)} - \mu}{\sqrt{\sigma^2 + \epsilon}}
+\end{gather}
+
+However, it's not always desirable for hidden units to have $\mu$ about 0 and $\sigma^2$ about 1.  In this case, we calculate the following:
+
+\begin{equation}
+\tilde{z}^{[l](i)} = \gamma z_{norm}^{[l](i)} + \beta
+\end{equation}
+
+In this case, both $\gamma$ and $\beta$ are learnable parameters.  These come in handy, for example, when computing the sigmoid function, because we don't want to force $\mu$ about 0 and $\sigma^2$ about 1 since the sigmoid function itself generally has a different mean and variance.
+
+\paragraph{No $b$ Values}
+
+When performing batch normalization in a network, all the means are subtracted from $Z^{[l]}$, which removes all the constants.  Therefore, when performing \textit{batched gradient descent} or \textit{mini-batched gradient descent} when using \textit{batch normalization}, there is no reason to consider $b$ vectors.
+
+\subsection{Why Does This Work?}
+
+It normalizes the data at all the hidden layers and helps alleviate a problem known as \textit{covariate shifting}.  In statistics, \textit{covariate} is a variable the possibly predicts the outcome.  So, \textit{covariate shifting} would be variables that are "shifting" ans possibly changing the outcome of the learning model.
+
+An acute example would be having trained a neural network to recognizes pictures of cats.  However, all the training data happened to be black cats.  Come test time, perhaps all of the photos of cats are of cats with different colors.  In this case, we would not expect the learning model to perform well.
+
+In terms of \textit{batch normalization}, since we are normalizing the data at every layer, it helps prevent \textit{covariate shifting} at every layer.  It forces the average to be about 0 and a variance of 1, assuming that's the mean and variance chosen (e.g. in some cases we choose different means and variances).
+
+Since the average and variance is limited, it makes it easier for the model to learn the inputs.  Because otherwise, without \textit{batch normalization}, the activations at each layer could change quite a bit as it learns the weights and bias, $W$ and $b$, respectively.
+
+\paragraph{Batch Norm as Regularization}
+
+Additionally, since it is computed only on mini-batches, \textit{batch normalization} adds some noise to each $Z^{[l]\{t\}}$ computed, adding a slight \textit{regularization} effect.  Increasing the mini-batch size decreases the regularization effect.
+
+Having said all this, do not use \textit{batch normalization} as regularization.  It's just a side-effect.
+
+\subsection{Batch Normalization at Test Time}
+
+While at training time we compute batch normalization values across entire mini-batches, at test time, we may only be testing one example at a time.  Therefore, we should create the \textit{exponetially weighted moving average} of $\mu$ and $\sigma^2$.
+
+Given $(X^{\{1\}}, X^{\{2\}}, X^{\{3\}}, ...)$, compute $(\mu^{\{1\}[l]}, \mu^{\{2\}[l]}, \mu^{\{3\}[l]}, ...)$ and $(\sigma^{\{1\}[l]}, \sigma^{\{2\}[l]}, \sigma^{\{3\}[l]}, ...)$ across mini-batches.  As these are computed, use them to compute the \textit{exponentially weighted moving averages} of $\mu^{[l]}$ and $\sigma^{[l]}$.
+
+\end{document}
