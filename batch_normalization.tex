@@ -18,9 +18,9 @@
 
 \section{Batch Normalization to Speed Up Learning}
 
-Remember that normalizing the input data was used to take elongated contours of features and normalizing them to be more concentric.  This was done by calculating the mean, $\mu$, and the variance, $\sigma^2$, and applying them to the input features, $X$: $X = X - \mu$ and $X = X / \sigma^2$.  This worked well for a single layer, single hidden unit learning model (e.g. logistic regression).
+Remember that normalizing the input data was used to take elongated contours of features to make them be more concentric.  This was done by calculating the mean, $\mu$, and the variance, $\sigma^2$, and applying them to the input features, $X$: $X = X - \mu$ and $X = X / \sigma^2$.  This worked well for a single layer, single hidden unit learning model (e.g. logistic regression).
 
-In the case of a larger network, apply the above normalization ideas to each $Z^{[l]}$.  it can instead be done to $A^{[l]}$, but it is more normal to apply normalization before the activations.  Here are the formulas to use:
+In the case of a network consisting of more than just a single layer and unit, we can apply the normalization to each $Z^{[l]}$, or, alternatively, to each $A^{[l]}$.  However, it is currently common practice to apply normalization before the activations.  Here are the formulas to use:
 
 \begin{gather}
 \mu = \frac{1}{m} \sum_i z^{[l](i)} \\
@@ -60,6 +60,13 @@ Having said all this, do not use \textit{batch normalization} as regularization.
 
 While at training time we compute batch normalization values across entire mini-batches, at test time, we may only be testing one example at a time.  Therefore, we should create the \textit{exponetially weighted moving average} of $\mu$ and $\sigma^2$.
 
-Given $(X^{\{1\}}, X^{\{2\}}, X^{\{3\}}, ...)$, compute $(\mu^{\{1\}[l]}, \mu^{\{2\}[l]}, \mu^{\{3\}[l]}, ...)$ and $(\sigma^{\{1\}[l]}, \sigma^{\{2\}[l]}, \sigma^{\{3\}[l]}, ...)$ across mini-batches.  As these are computed, use them to compute the \textit{exponentially weighted moving averages} of $\mu^{[l]}$ and $\sigma^{[l]}$.
+Given $(X^{\{1\}}, X^{\{2\}}, X^{\{3\}}, ...)$, compute the following across mini-batches:
+
+\begin{gather}
+\mu^{[l]} = (\mu^{\{1\}[l]}, \mu^{\{2\}[l]}, \mu^{\{3\}[l]}, ...) \label{eqn:means} \\
+\sigma^{2[l]} = (\sigma^{\{1\}[l]}, \sigma^{\{2\}[l]}, \sigma^{\{3\}[l]}, ...) \label{eqn:variances}
+\end{gather}
+
+As Vectors \ref{eqn:means} and \ref{eqn:variances} are computed, use them to compute the \textit{exponentially weighted moving averages} of $\mu^{[l]}$ and $\sigma^2{[l]}$.
 
 \end{document}
