@@ -209,7 +209,7 @@ $b = b - \alpha \frac{db}{\sqrt{S_{db}} + \epsilon}$ \;
 
 It should be noted that Lines \ref{line:rmsprop_sdw} and \ref{line:rmsprop_sdb} from Algorithm \ref{alg:rmsprop} are performing element-wise squaring.  So, in essence, these are EWMAs of the squared weights and intercepts.
 
-Due to the nature of our derivatives, $db$ tends to be very large and $dW$ tends to be very small.  So, if $b$ is the "y-axis" and $W$ is the "x-axis", then doing the divisions by $\sqrt{x}$ will tamp down $b$ oscillations a lot while increasing the oscillation of $W$, which is our desired goal.
+Due to the nature of our derivatives, $db$ tends to be very large and $dW$ tends to be very small.  So, if $b$ is the "y-axis" and $W$ is the "x-axis", then doing the divisions by $\sqrt{S}$ will tamp down $b$ oscillations a lot while increasing the oscillation of $W$, which is our desired goal.
 
 \paragraph{Important note on $\beta$}
 
