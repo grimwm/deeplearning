@@ -120,4 +120,32 @@ B & 5\% & 6\% & 5\% & 10\% & 6.5\%
 \end{center}
 \end{table}
 
+\section{Satisficing and Optimizing Metrics}
+
+It's not always possible to combine metrics into a single numeric metric.  For example, consider Table \ref{tbl:accuracy_vs_time}, which shows how accurate a particular algorithm is, compared to the time it takes for the algorithm to provide that level of accuracy.
+
+In the case of Table \ref{tbl:accuracy_vs_time}, we may want to split our metrics into \textit{optimizing} and \textit{satisficing}.
+
+\paragraph{Optimizing Metric}
+
+This is the number we wish to optimize.  Perhaps it's an \textit{F1 Score} or some other metric to optimize, but the important thing is that there will only be one of these.
+
+\paragraph{Satisficing Metrics}
+
+These are the $N-1$ metrics that have to be satisfied before we consider the \textit{optimizing metric}.  For example, in Table \ref{tbl:accuracy_vs_time}, maybe we only care about optimizing accuracy for those algorithms that can perform under 100ms, and in this case, we would choose Algorithm B as the winner.
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}[h]{c | c | c | c}
+Algorithm & Accuracy & Time \\ \hline
+A & 90\% & 25ms \\
+B & 93\% & 98ms \\
+C & 98\% & 1500ms
+\end{tabular}
+\caption{Accuracy vs. Time} \label{tbl:accuracy_vs_time}
+\end{center}
+\end{table}
+
+The important thing to remember is that given $N$ metrics, one of them will be an \textit{optimizing metric}, and $N-1$ of them will be \textit{satisficing metrics}, in the cases where satisficing metrics are being used.
+
 \end{document}
