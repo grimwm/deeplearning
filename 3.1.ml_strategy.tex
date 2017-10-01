@@ -1,0 +1,123 @@
+\documentclass{article}
+\usepackage[boxruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{TODO #1}}
+
+\begin{document}
+
+\title {Optimization Algorithms:\\
+Mini-Batches, Exponentially Weighted Averages, and More}
+\author{William Grim \\ \href{mailto:grimwm@gmail.com}{grimwm@gmail.com}}
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Why ML Strategy?}
+
+Imagine training a deep learning model that works well, but you want it to work better.  It helps to know which "knobs" to twist to improve which features of the model.  For example, is it best to change the optimization algorithm from gradient descent to Adam?  Or is it best to make the model larger or to collect more training data?  Therefore, it becomes important to have an \textit{ML Strategy}.
+
+\section{Orthogonalization}
+
+Chain of assumptions in Machine Learning: fit training set well to the cost function $\rightarrow$ fit dev set well to the cost function $\rightarrow$ fit test set well to the cost function $\rightarrow$ perform well in real world.
+
+\paragraph{Fit training set well to the cost function}
+
+\begin{itemize}
+\item Bigger network
+\item Change optimization algorithm
+\end{itemize}
+
+\paragraph{Fit dev set well to the cost function}
+
+\begin{itemize}
+\item Regularization: e.g. dropout or L2, etc.
+\item Bigger training set
+\end{itemize}
+
+\paragraph{Fit test set well to the cost function}
+
+\begin{itemize}
+\item Bigger dev set
+\end{itemize}
+
+\paragraph{Perform well in the real world}
+
+\begin{itemize}
+\item Change the dev set, or
+\item Change the cost function
+\end{itemize}
+
+\paragraph{Additional Notes}
+
+There are other "knobs" to change, such as \textit{early stopping}, but "knobs" like that effect both the fitting to the training set and the dev set.  So, it's not very orthogonal, which is not desirable in model creation.
+
+\section{Setting Up Your Goals}
+
+\subsection{Single Number Evaluation Metric}
+
+Given a classification, $A$,
+
+\begin{itemize}
+\item \textbf{Precision} is the \% of examples your model correctly classified as $A$ when it classified examples as $A$
+\item \textbf{Recall} is the \% of examples correctly classified as $A$ out of all the examples
+\end{itemize}
+
+Now, given Table \ref{tbl:precision_and_recall} below, it is very difficult to know whether or not classifier $A$ or $B$ is doing better than the other due to one having a better \textit{recall} vs the other's \textit{precision}.
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}[h]{c | c | c}
+Classifier & Precision & Recall \\ \hline
+A & 95\% & 90\% \\
+B & 98\% & 95\%
+\end{tabular}
+\caption{Precision and Recall} \label{tbl:precision_and_recall}
+\end{center}
+\end{table}
+
+So, a possible solution to that is to create a combined score, commonly known as the \textit{F1 Score}, as seen in Table \ref{tbl:f1_score}.
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}[h]{c | c | c | c}
+Classifier & Precision & Recall & F1 Score \\ \hline
+A & 95\% & 90\% & 92.4\% \\
+B & 98\% & 95\% & 91.0\%
+\end{tabular}
+\caption{F1 Scoring} \label{tbl:f1_score}
+\end{center}
+\end{table}
+
+\paragraph{F1 Score}
+
+Formally, the \textit{F1 Score} is a \textit{harmonic mean} of the \textit{precision}, $P$, and the \textit{recall}, $R$, as seen in Equation \ref{eqn:f1_score}.
+
+\begin{gather}
+\frac{2}{\frac{1}{P} + \frac{1}{R}} \label{eqn:f1_score}
+\end{gather}
+
+\paragraph{Harmonic Mean}
+
+As started earlier, the \textit{F1 Score} is the harmonic mean of the \textit{precision} and \textit{recall} of various classifiers, but we can use the harmonic mean to generate useful averages amongst any number of items, as seen in Table \ref{tbl:error_rates} for "Error Rates".  In that case, it is easy to see that, on average, algorithm A performs better than algorithm B.
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}[h]{c | c | c | c | c | c}
+Algorithm & US & China & India & Other & Average \\ \hline
+A & 3\% & 7\% & 5\% & 9\% & 6\% \\
+B & 5\% & 6\% & 5\% & 10\% & 6.5\%
+\end{tabular}
+\caption{Algorithm Error Rates and Harmonic Means} \label{tbl:error_rates}
+\end{center}
+\end{table}
+
+\end{document}
